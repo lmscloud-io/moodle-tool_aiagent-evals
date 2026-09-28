@@ -211,6 +211,10 @@ def main(argv: list[str] | None = None) -> int:
     down_parser = commands.add_parser("down", help="delete branches' sites (database and moodledata)")
     down_parser.add_argument("--moodle", required=True, help="comma-separated branches")
 
+    publish_parser = commands.add_parser("publish", help="write the scoreboard into a docs repo checkout")
+    publish_parser.add_argument("--results", nargs="+", required=True, help="results.json paths or globs")
+    publish_parser.add_argument("--docs-dir", required=True)
+
     args = parser.parse_args(argv)
     env = dict(os.environ)
     if args.command == "run":
@@ -223,4 +227,8 @@ def main(argv: list[str] | None = None) -> int:
         versions = load_versions()
         for branch in args.moodle.split(","):
             Site(versions[branch.strip()], "", "").destroy()
+    elif args.command == "publish":
+        from .publish import publish
+
+        publish(args.results, Path(args.docs_dir))
     return 0
