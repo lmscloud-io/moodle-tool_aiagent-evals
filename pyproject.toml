@@ -19,6 +19,9 @@ dev = ["pytest>=8"]
 [project.scripts]
 aiagent-evals = "aiagent_evals.runner:main"
 
+[project.entry-points.inspect_ai]
+aiagent_evals = "aiagent_evals._registry"
+
 [tool.setuptools.packages.find]
 include = ["aiagent_evals*"]
 
