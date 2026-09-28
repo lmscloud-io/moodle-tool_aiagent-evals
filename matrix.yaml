@@ -31,7 +31,7 @@ cells:
      plugin_settings: {gemini_api_type: generatecontent}, secrets: {apikey: GEMINI_API_KEY}}
   - {id: gemini-interactions-gemini-3-flash, provider: aiprovider_gemini, model: gemini-3-flash-preview,
      plugin_settings: {gemini_api_type: interactions}, secrets: {apikey: GEMINI_API_KEY}}
-  - {id: kimi-cc-kimi-k2, provider: aiprovider_openaicompatible, model: kimi-k2-0905-preview,
+  - {id: kimi-cc-kimi-k2-6, provider: aiprovider_openaicompatible, model: kimi-k2.6,
      label: "Kimi (OpenAI-compatible plugin, Moonshot)",
      config: {apiendpoint: "https://api.moonshot.ai/v1"}, secrets: {apikey: MOONSHOT_API_KEY}}
 
@@ -41,7 +41,7 @@ tiers:
     trials: 2
     cells: [openai-cc-gpt-6-luna, openai-responses-gpt-6-luna, azureai-cc-gpt-6-luna,
             azureai-responses-gpt-6-luna, anthropic-claude-haiku-4-5, claude-claude-haiku-4-5,
-            gemini-generatecontent-gemini-3-flash, gemini-interactions-gemini-3-flash, kimi-cc-kimi-k2]
+            gemini-generatecontent-gemini-3-flash, gemini-interactions-gemini-3-flash, kimi-cc-kimi-k2-6]
   models:
     moodle: newest
     trials: 3

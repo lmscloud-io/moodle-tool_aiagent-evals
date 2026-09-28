@@ -58,10 +58,10 @@ def test_cells_carry_each_providers_settings():
     gemini = cells["gemini-generatecontent-gemini-3-flash"]
     assert gemini.action_settings()["endpoint"].endswith("/models/gemini-3-flash-preview:generateContent")
     assert cells["openai-cc-gpt-6-luna"].action_settings()["endpoint"] == "https://api.openai.com/v1/chat/completions"
-    assert cells["kimi-cc-kimi-k2"].provider_config() == {"apiendpoint": "https://api.moonshot.ai/v1"}
+    assert cells["kimi-cc-kimi-k2-6"].provider_config() == {"apiendpoint": "https://api.moonshot.ai/v1"}
     assert cells["openai-responses-gpt-6-luna"].api_label() == "Responses API"
     assert cells["anthropic-claude-haiku-4-5"].api_label() == "Messages API"
-    assert cells["kimi-cc-kimi-k2"].provider_label() == "Kimi (OpenAI-compatible plugin, Moonshot)"
+    assert cells["kimi-cc-kimi-k2-6"].provider_label() == "Kimi (OpenAI-compatible plugin, Moonshot)"
 
 
 def test_an_openai_cell_without_an_api_type_is_rejected(tmp_path):
