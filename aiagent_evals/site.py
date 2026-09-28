@@ -147,3 +147,26 @@ class Site:
                 pass
             time.sleep(2)
         raise SiteError(f"{self.version.wwwroot} did not answer within {timeout:.0f} seconds")
+
+    def helper(self, script: str, *args: str, stdin: str | None = None,
+               check: bool = True) -> subprocess.CompletedProcess:
+        """Run one of the helper plugin's CLI scripts."""
+        return self.cli(f"{self.web_prefix}local/aiagentevals/cli/{script}", *args, stdin=stdin, check=check)
+
+    def refresh_helper(self) -> None:
+        """Copy the helper plugin into the checkout again, so edits reach a site that is already built."""
+        target = self.plugin_path("local/aiagentevals")
+        if target.exists():
+            shutil.rmtree(target)
+        shutil.copytree(HELPER_PLUGIN, target)
+
+    def preflight(self) -> list[str]:
+        """What makes the site unusable for evaluation; empty when it is ready."""
+        result = self.helper("preflight.php", check=False)
+        try:
+            return list(json.loads(result.stdout)["problems"])
+        except (json.JSONDecodeError, KeyError):
+            return [f"preflight.php printed no report: {result.stderr.strip()[-500:]}"]
+
+    def usage(self, chat_hash: str) -> list[dict]:
+        return json.loads(self.helper("usage.php", f"--hash={chat_hash}").stdout)
