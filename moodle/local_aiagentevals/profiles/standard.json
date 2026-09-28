@@ -1,0 +1,32 @@
+{
+  "password": "Eval-user-1",
+  "categories": [
+    {"idnumber": "EVAL", "name": "Evaluation courses"}
+  ],
+  "courses": [
+    {"shortname": "ZA101", "fullname": "Zebra Analytics 101", "category": "EVAL"},
+    {"shortname": "QM201", "fullname": "Quantum Mechanics 201", "category": "EVAL"},
+    {"shortname": "HS110", "fullname": "History of Science 110", "category": "EVAL"}
+  ],
+  "users": [
+    {"username": "manager1", "firstname": "Mara", "lastname": "Manager", "systemrole": "manager"},
+    {"username": "teacher1", "firstname": "Tomas", "lastname": "Teacher"},
+    {"username": "teacher2", "firstname": "Tina", "lastname": "Tutor"},
+    {"username": "assistant1", "firstname": "Ada", "lastname": "Assistant"}
+  ],
+  "students": {"prefix": "student", "count": 20, "firstname": "Student", "lastnameprefix": "Number"},
+  "enrolments": [
+    {"course": "ZA101", "users": ["teacher1"], "role": "editingteacher"},
+    {"course": "ZA101", "users": ["assistant1"], "role": "teacher"},
+    {"course": "ZA101", "users": "student01-student12", "role": "student"},
+    {"course": "QM201", "users": ["teacher2"], "role": "editingteacher"},
+    {"course": "QM201", "users": "student08-student20", "role": "student"}
+  ],
+  "groups": [
+    {"course": "ZA101", "name": "Group A", "members": "student01-student06"},
+    {"course": "ZA101", "name": "Group B", "members": "student07-student12"}
+  ],
+  "capabilities": [
+    {"capability": "tool/aiagent:usechat", "role": "editingteacher"}
+  ]
+}

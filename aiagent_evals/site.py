@@ -14,6 +14,7 @@ from pathlib import Path
 import requests
 
 from .config import ROOT, Cell, GitSource, MoodleVersion, load_provider_sources, provider_source
+from .driver import DriverError, MoodleChat
 
 COMPOSE_FILE = ROOT / "docker" / "compose.yaml"
 CONFIG_TEMPLATE = ROOT / "docker" / "config.php.template"
@@ -188,3 +189,29 @@ class Site:
 
     def status(self) -> dict:
         return json.loads(self.helper("cell.php", "--status").stdout)
+
+    def seed(self, profile: str = "standard") -> dict:
+        """Seed the site once from a profile and return the manifest (names to ids, contexts and URLs)."""
+        manifest = json.loads(self.helper("seed.php", f"--profile={profile}").stdout)
+        (self.workdir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        return manifest
+
+    @staticmethod
+    def passwords(manifest: dict) -> dict[str, str]:
+        """Every seeded user's password, plus the admin's."""
+        return {**{username: manifest["password"] for username in manifest["users"]}, "admin": ADMIN_PASSWORD}
+
+    def check_logins(self, usernames: list[str], passwords: dict[str, str]) -> list[str]:
+        """Why any of these users cannot log in and open the chat page; empty when all of them can."""
+        problems = []
+        for username in usernames:
+            if username not in passwords:
+                problems.append(f"no seeded user is called {username}")
+                continue
+            try:
+                chat = MoodleChat(self.version.wwwroot, username, passwords[username])
+                chat.login()
+                chat.probe()
+            except DriverError as error:
+                problems.append(str(error))
+        return problems
