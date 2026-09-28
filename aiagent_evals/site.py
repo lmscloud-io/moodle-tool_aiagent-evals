@@ -7,12 +7,13 @@ import os
 import shutil
 import subprocess
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
 import requests
 
-from .config import ROOT, GitSource, MoodleVersion, load_provider_sources, provider_source
+from .config import ROOT, Cell, GitSource, MoodleVersion, load_provider_sources, provider_source
 
 COMPOSE_FILE = ROOT / "docker" / "compose.yaml"
 CONFIG_TEMPLATE = ROOT / "docker" / "config.php.template"
@@ -170,3 +171,20 @@ class Site:
 
     def usage(self, chat_hash: str) -> list[dict]:
         return json.loads(self.helper("usage.php", f"--hash={chat_hash}").stdout)
+
+    def activate(self, cell: Cell, env: Mapping[str, str]) -> None:
+        """Make the cell the site's only text provider; its secrets come from env, never from a file."""
+        missing = [variable for variable in cell.secrets.values() if not env.get(variable)]
+        if missing:
+            raise SiteError(f"cell {cell.id} needs {', '.join(missing)}")
+        payload = {
+            "id": cell.id,
+            "provider": cell.provider,
+            "config": {**cell.provider_config(), **{key: env[var] for key, var in cell.secrets.items()}},
+            "action": cell.action_settings(),
+            "plugin_settings": cell.plugin_settings,
+        }
+        self.helper("cell.php", stdin=json.dumps(payload))
+
+    def status(self) -> dict:
+        return json.loads(self.helper("cell.php", "--status").stdout)
