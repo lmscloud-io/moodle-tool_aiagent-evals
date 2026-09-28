@@ -1,0 +1,30 @@
+<?php  // Moodle configuration for a disposable evaluation site, written by aiagent_evals.site.
+
+unset($CFG);
+global $CFG;
+$CFG = new stdClass();
+
+$CFG->dbtype    = 'pgsql';
+$CFG->dblibrary = 'native';
+$CFG->dbhost    = 'db';
+$CFG->dbname    = 'moodle';
+$CFG->dbuser    = 'moodle';
+$CFG->dbpass    = 'moodle';
+$CFG->prefix    = 'm_';
+$CFG->dboptions = [];
+
+$CFG->wwwroot   = '{{WWWROOT}}';
+$CFG->dataroot  = '/var/www/moodledata';
+$CFG->admin     = 'admin';
+$CFG->directorypermissions = 02777;
+
+// Diagnostics kept but never displayed, and no email ever leaves the site.
+$CFG->debug = 32767;
+$CFG->debugdisplay = 0;
+$CFG->noemailever = true;
+
+// DISTR-TEST's testing seam activates this license against staging on install and downloads the materials.
+define('TOOL_AIAGENT_TEST_LICENSE_KEY', '{{LICENSE_KEY}}');
+define('TOOL_AIAGENT_TEST_API_ENDPOINT', '{{API_ENDPOINT}}');
+
+require_once(__DIR__ . '/lib/setup.php');

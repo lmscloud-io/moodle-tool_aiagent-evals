@@ -1,0 +1,34 @@
+# One disposable Moodle site. aiagent_evals.site runs it with the EVAL_* variables set and a compose
+# project per branch (aiagent-evals-<branch>), so sites never collide with each other or with any other
+# Moodle stack on the machine.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: moodle
+      POSTGRES_PASSWORD: moodle
+      POSTGRES_DB: moodle
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moodle -d moodle"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  web:
+    image: moodlehq/moodle-php-apache:${EVAL_PHP}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${EVAL_PORT}:80"
+    volumes:
+      - ${EVAL_MOODLE_DIR}:/var/www/html
+      - moodledata:/var/www/moodledata
+    environment:
+      # The image writes PHP_INI-<name> variables into php.ini; a chat turn may wait minutes on a provider.
+      PHP_INI-max_execution_time: "900"
+      PHP_INI-memory_limit: "512M"
+volumes:
+  pgdata:
+  moodledata:
