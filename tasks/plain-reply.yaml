@@ -1,0 +1,12 @@
+id: plain-reply
+description: A plain question gets an answer while the agent's functions are on offer.
+tiers: [compat, models]
+user: admin
+autoapprove: readonly
+turns:
+  - "What is 2+2? Reply with only the number."
+graders:
+  - no_error
+  - reply_matches: '^\s*4\s*$'
+  - usage_recorded
+budget_seconds: 120

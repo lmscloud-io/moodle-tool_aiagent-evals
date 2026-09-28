@@ -1,0 +1,9 @@
+# One disposable site per Moodle branch. The port fixes the site's wwwroot (http://localhost:<port>),
+# and a license seat is keyed on the wwwroot, so keep each port stable.
+"405": {git_ref: MOODLE_405_STABLE, php: "8.3", port: 8405}
+"500": {git_ref: MOODLE_500_STABLE, php: "8.4", port: 8500}
+"501": {git_ref: MOODLE_501_STABLE, php: "8.4", port: 8501}
+"502": {git_ref: MOODLE_502_STABLE, php: "8.4", port: 8502}
+# 5.3 has no stable branch yet; switch to MOODLE_503_STABLE once it exists. It only runs once a build's
+# version.php declares 503 as supported.
+"503": {git_ref: main, php: "8.4", port: 8503}

@@ -1,0 +1,48 @@
+# A cell is one provider plugin, one model and one API mode. `secrets` maps a provider setting to the
+# environment variable that holds it.
+cells:
+  - {id: openai-cc-gpt-6-luna, provider: aiprovider_openai, model: gpt-6-luna,
+     plugin_settings: {openai_api_type: chatcompletions}, secrets: {apikey: OPENAI_API_KEY}}
+  - {id: openai-responses-gpt-6-luna, provider: aiprovider_openai, model: gpt-6-luna,
+     plugin_settings: {openai_api_type: responses}, secrets: {apikey: OPENAI_API_KEY}}
+  - {id: openai-cc-gpt-6-sol, provider: aiprovider_openai, model: gpt-6-sol,
+     plugin_settings: {openai_api_type: chatcompletions}, secrets: {apikey: OPENAI_API_KEY}}
+  - {id: openai-responses-gpt-6-sol, provider: aiprovider_openai, model: gpt-6-sol,
+     plugin_settings: {openai_api_type: responses}, secrets: {apikey: OPENAI_API_KEY}}
+  - {id: openai-cc-gpt-6-astra, provider: aiprovider_openai, model: gpt-6-astra,
+     plugin_settings: {openai_api_type: chatcompletions}, secrets: {apikey: OPENAI_API_KEY}}
+  - {id: openai-responses-gpt-6-astra, provider: aiprovider_openai, model: gpt-6-astra,
+     plugin_settings: {openai_api_type: responses}, secrets: {apikey: OPENAI_API_KEY}}
+  - {id: azureai-cc-gpt-6-luna, provider: aiprovider_azureai, model: gpt-6-luna,
+     plugin_settings: {openai_api_type: chatcompletions},
+     secrets: {apikey: AZURE_OPENAI_API_KEY, endpoint: AZURE_OPENAI_ENDPOINT}}
+  - {id: azureai-responses-gpt-6-luna, provider: aiprovider_azureai, model: gpt-6-luna,
+     plugin_settings: {openai_api_type: responses},
+     secrets: {apikey: AZURE_OPENAI_API_KEY, endpoint: AZURE_OPENAI_ENDPOINT}}
+  - {id: anthropic-claude-haiku-4-5, provider: aiprovider_anthropic, model: claude-haiku-4-5-20251001,
+     secrets: {apikey: ANTHROPIC_API_KEY}}
+  - {id: anthropic-claude-sonnet-5, provider: aiprovider_anthropic, model: claude-sonnet-5,
+     secrets: {apikey: ANTHROPIC_API_KEY}}
+  - {id: anthropic-claude-opus-5-5, provider: aiprovider_anthropic, model: claude-opus-5-5,
+     secrets: {apikey: ANTHROPIC_API_KEY}}
+  - {id: claude-claude-haiku-4-5, provider: aiprovider_claude, model: claude-haiku-4-5-20251001,
+     secrets: {apikey: ANTHROPIC_API_KEY}}
+  - {id: gemini-generatecontent-gemini-3-flash, provider: aiprovider_gemini, model: gemini-3-flash-preview,
+     plugin_settings: {gemini_api_type: generatecontent}, secrets: {apikey: GEMINI_API_KEY}}
+  - {id: gemini-interactions-gemini-3-flash, provider: aiprovider_gemini, model: gemini-3-flash-preview,
+     plugin_settings: {gemini_api_type: interactions}, secrets: {apikey: GEMINI_API_KEY}}
+  - {id: kimi-cc-kimi-k2, provider: aiprovider_openaicompatible, model: kimi-k2-0905-preview,
+     label: "Kimi (OpenAI-compatible plugin, Moonshot)",
+     config: {apiendpoint: "https://api.moonshot.ai/v1"}, secrets: {apikey: MOONSHOT_API_KEY}}
+
+tiers:
+  compat:
+    moodle: supported
+    trials: 2
+    cells: [openai-cc-gpt-6-luna, openai-responses-gpt-6-luna, azureai-cc-gpt-6-luna,
+            azureai-responses-gpt-6-luna, anthropic-claude-haiku-4-5, claude-claude-haiku-4-5,
+            gemini-generatecontent-gemini-3-flash, gemini-interactions-gemini-3-flash, kimi-cc-kimi-k2]
+  models:
+    moodle: newest
+    trials: 3
+    cells: all

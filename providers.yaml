@@ -1,0 +1,25 @@
+# How each provider plugin reaches a Moodle branch: core, a git source, null (no plugin exists for that
+# branch) or skip (deliberately not tested there). Follows the plugin's .github/workflows/gha.yml, except
+# OpenAI-compatible on 5.0+ (ADORSYS-GIS) and Claude on 5.3 (Anthropic is core there).
+aiprovider_openai:
+  default: core
+aiprovider_azureai:
+  default: core
+aiprovider_anthropic:
+  "405": {repo: https://github.com/LucaDR1998/moodle-aiprovider_anthropic.git, branch: moodle-4.5}
+  "500": null
+  "501": {repo: https://github.com/LucaDR1998/moodle-aiprovider_anthropic.git, branch: moodle-5.1}
+  "502": {repo: https://github.com/LucaDR1998/moodle-aiprovider_anthropic.git, branch: moodle-5.1}
+  "503": core
+aiprovider_claude:
+  "405": {repo: https://github.com/ashishptl21/moodle-aiprovider_claude.git, branch: "45"}
+  "503": skip
+  default: {repo: https://github.com/ashishptl21/moodle-aiprovider_claude.git, branch: main}
+aiprovider_gemini:
+  "405": {repo: https://github.com/Universita-di-Ferrara/moodle-aiprovider_gemini.git, branch: main}
+  "500": {repo: https://github.com/Universita-di-Ferrara/moodle-aiprovider_gemini.git, branch: moodle50}
+  "501": {repo: https://github.com/Universita-di-Ferrara/moodle-aiprovider_gemini.git, branch: moodle50}
+  default: core
+aiprovider_openaicompatible:
+  "405": {repo: https://github.com/lmscloud-io/moodle-aiprovider_openaicompatible.git, branch: moodle405}
+  default: {repo: https://github.com/ADORSYS-GIS/moodle-aiprovider_openaicompatible.git, branch: main}

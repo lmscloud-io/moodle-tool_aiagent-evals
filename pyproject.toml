@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiagent-evals"
+version = "0.1.0"
+description = "Evaluations for the AI agent for Moodle (tool_aiagent)"
+requires-python = ">=3.10"
+dependencies = [
+  "inspect-ai==0.3.271",
+  "requests>=2.32",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+aiagent-evals = "aiagent_evals.runner:main"
+
+[tool.setuptools.packages.find]
+include = ["aiagent_evals*"]
+
+[tool.pytest.ini_options]
+markers = ["integration: needs docker, the .env secrets and network access"]
+addopts = "-m 'not integration'"
