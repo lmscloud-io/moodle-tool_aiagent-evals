@@ -65,3 +65,9 @@ def test_the_scorer_combines_graders_and_reports_metadata():
     assert "reply_contains" in score.explanation
     assert score.metadata["prompt_tokens"] == 900 and score.metadata["llm_calls"] == 1
     assert score.metadata["graders"] == [["no_error", True], ["reply_contains", False]]
+
+
+def test_tool_succeeded_reads_results_merged_onto_the_call():
+    merged = {"role": "tool_call", "messageid": 2, "tools": [{"id": "c1", "name": "f", "arguments": {}}],
+              "results": [{"tool_call_id": "c1", "name": "f", "result": "{}", "status": "succeeded"}]}
+    assert verdicts(transcript([USER, merged, REPLY]), Grader("tool_succeeded")) == [("tool_succeeded", True)]

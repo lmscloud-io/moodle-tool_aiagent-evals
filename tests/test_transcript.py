@@ -77,3 +77,23 @@ def test_tokens_and_rate_limits():
 def test_round_trip_through_a_dict():
     transcript = Transcript("h", [USER, REPLY], [{"prompttokens": 1}], [Turn("reply", 2.5)])
     assert Transcript.from_dict(transcript.to_dict()) == transcript
+
+
+MERGED_CALL = {"role": "tool_call", "messageid": 2, "autorun": True, "denied": False,
+               "tools": [{"id": "call_1", "name": "core_course_get_courses_by_field", "type": "read",
+                          "arguments": {"field": "shortname", "value": "ZA101"}}],
+               "results": [{"tool_call_id": "call_1", "name": "core_course_get_courses_by_field",
+                            "result": '{"courses":[{"fullname":"Zebra Analytics 101"}]}', "status": "succeeded"}]}
+
+
+def test_results_merged_onto_the_call_are_read():
+    transcript = Transcript("h", [USER, MERGED_CALL, REPLY])
+    assert [result["status"] for result in transcript.tool_results()] == ["succeeded"]
+    messages = transcript.to_inspect_messages()
+    assert [type(m) for m in messages] == [ChatMessageUser, ChatMessageAssistant, ChatMessageTool, ChatMessageAssistant]
+    assert messages[2].tool_call_id == "call_1" and messages[2].error is None
+
+
+def test_a_denied_merged_batch_carries_an_approval_error():
+    denied = {**MERGED_CALL, "denied": True, "results": [{**MERGED_CALL["results"][0], "status": "denied"}]}
+    assert Transcript("h", [USER, denied]).to_inspect_messages()[2].error.type == "approval"

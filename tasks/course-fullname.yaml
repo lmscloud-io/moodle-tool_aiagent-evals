@@ -1,0 +1,12 @@
+id: course-fullname
+description: A question about a course that the agent can only answer by calling a function.
+tiers: [compat, models]
+user: admin
+autoapprove: readonly
+turns:
+  - "What is the full name of the course with the short name ZA101? Reply with only the full name."
+graders:
+  - no_error
+  - tool_succeeded
+  - reply_contains: "Zebra Analytics 101"
+budget_seconds: 300

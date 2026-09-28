@@ -93,7 +93,9 @@ class Transcript:
                 if entry.get("role") == "assistant" and entry.get("iserror")]
 
     def tool_results(self, turn: int | None = None) -> list[dict[str, Any]]:
-        return [result for entry in self._scope(turn) if entry.get("role") == "tool"
+        """Function results. The load payload merges each batch's results onto its tool_call entry
+        (message::export_list()); a separate tool entry is read as well."""
+        return [result for entry in self._scope(turn) if entry.get("role") in ("tool_call", "tool")
                 for result in entry.get("results") or []]
 
     def tokens(self) -> tuple[int, int]:
@@ -118,15 +120,18 @@ class Transcript:
                                   arguments=_arguments(tool.get("arguments")))
                          for tool in entry.get("tools") or []]
                 messages.append(ChatMessageAssistant(content="", tool_calls=calls))
+                messages.extend(_tool_messages(entry))
             elif role == "tool":
-                for result in entry.get("results") or []:
-                    messages.append(ChatMessageTool(
-                        content=_text(result.get("result")),
-                        tool_call_id=str(result.get("tool_call_id", "")),
-                        function=str(result.get("name", "")),
-                        error=_error(str(result.get("status", "")), bool(entry.get("denied"))),
-                    ))
+                messages.extend(_tool_messages(entry))
         return messages
+
+
+def _tool_messages(entry: dict[str, Any]) -> list[ChatMessage]:
+    """One Inspect tool message per result carried by a tool_call (merged) or tool entry."""
+    return [ChatMessageTool(content=_text(result.get("result")), tool_call_id=str(result.get("tool_call_id", "")),
+                            function=str(result.get("name", "")),
+                            error=_error(str(result.get("status", "")), bool(entry.get("denied"))))
+            for result in entry.get("results") or []]
 
 
 def _arguments(value: Any) -> dict[str, Any]:

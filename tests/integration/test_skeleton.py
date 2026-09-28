@@ -23,3 +23,18 @@ def test_plain_reply_runs_end_to_end(site, tmp_path):
     score = sample.scores["graded"]
     assert score.value == "C", score.explanation
     assert sample.messages[0].role == "user"
+
+
+def test_course_fullname_calls_a_function(site, tmp_path):
+    site.refresh_helper()
+    manifest = site.seed()
+    cell = next(c for c in config.load_matrix()[0] if c.id == "openai-responses-gpt-6-luna")
+    site.activate(cell, os.environ)
+    context.current = context.RunContext(site.version.wwwroot, site.passwords(manifest), site.usage,
+                                         manifest["courses"])
+    tasks = [task for task in config.load_tasks() if task.id == "course-fullname"]
+    [log] = inspect_eval(build_task(Tier("compat", "newest", (cell.id,), 1), tasks), model=f"moodle/{cell.id}",
+                         log_dir=str(tmp_path), display="none", max_samples=1)
+    [sample] = log.samples
+    assert sample.scores["graded"].value == "C", sample.scores["graded"].explanation
+    assert any(getattr(message, "tool_calls", None) for message in sample.messages)
