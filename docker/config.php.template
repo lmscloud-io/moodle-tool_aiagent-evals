@@ -18,8 +18,9 @@ $CFG->dataroot  = '/var/www/moodledata';
 $CFG->admin     = 'admin';
 $CFG->directorypermissions = 02777;
 
-// Diagnostics kept but never displayed, and no email ever leaves the site.
-$CFG->debug = 32767;
+// Production-like: no developer debugging, so error bubbles carry what customers see (the run artifacts are
+// public), and no email ever leaves the site.
+$CFG->debug = 0;
 $CFG->debugdisplay = 0;
 $CFG->noemailever = true;
 

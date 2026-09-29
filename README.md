@@ -56,5 +56,10 @@ Secrets: `TOOL_AIAGENT_TEST_LICENSE_KEY`, `TOOL_AIAGENT_TEST_API_ENDPOINT_STAGIN
 
 ## What is public
 
-Only verdicts, model names, counts, times and token numbers. Transcripts, prompts, the plugin's system
-instructions and function descriptions, and provider error texts stay in the private artifacts.
+The scoreboard shows only verdicts, model names, counts, times and token numbers. The run artifacts (the
+Inspect logs and `results.json`) can be downloaded by anyone who can see this repository. They hold what the
+chat shows: the questions, the replies, the function calls and their results on the seeded data, and token
+counts, but not the plugin's system instructions or function descriptions. Secret values are replaced with
+`[redacted]` in `results.json`, evaluation sites run without developer debugging so error messages match what
+customers see, and the workflow runs nothing outside `lmscloud-io/moodle-tool_aiagent-evals`, so a fork never
+reaches the secrets.

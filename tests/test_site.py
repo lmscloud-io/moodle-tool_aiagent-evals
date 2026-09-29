@@ -25,3 +25,10 @@ def test_plugins_live_under_public_from_5_1(tmp_path, monkeypatch):
 def test_each_branch_gets_its_own_compose_project():
     versions = config.load_versions()
     assert len({sitemodule.Site(v, "main", "repo").project for v in versions.values()}) == len(versions)
+
+
+def test_sites_run_without_developer_debugging():
+    # Error bubbles then carry what customers see, and nothing more reaches the public run artifacts.
+    text = sitemodule.render_config("http://localhost:8502", "key", "https://staging.example/api")
+    assert "$CFG->debug = 0;" in text
+    assert "32767" not in text

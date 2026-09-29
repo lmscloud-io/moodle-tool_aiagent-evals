@@ -6,6 +6,7 @@ import argparse
 import fnmatch
 import json
 import os
+import re
 import shutil
 import statistics
 import subprocess
@@ -21,6 +22,9 @@ from .config import (ROOT, Cell, Tier, load_env, load_matrix, load_provider_sour
 from .site import Site, SiteError
 
 DEFAULT_TOKEN_CAP = 3_000_000
+# Secrets that are not cell keys; a cell's own keys come from matrix.yaml.
+FIXED_SECRETS = ("TOOL_AIAGENT_TEST_LICENSE_KEY", "TOOL_AIAGENT_TEST_API_ENDPOINT_STAGING", "DISTRTEST_REPO",
+                 "DISTRTEST_READ_TOKEN", "DOCS_PR_TOKEN")
 
 
 def matches(value: str, patterns: str) -> bool:
@@ -151,7 +155,7 @@ def run(args: argparse.Namespace, env: Mapping[str, str]) -> Path:
         if problems:
             # The problems stay in results.json for the maintainer; the scoreboard only says "not run".
             results["runs"].append({"branch": branch, "status": "site_failed", "problems": problems})
-            _write(out, results)
+            write_results(out, results, env)
             continue
         context.current = context.RunContext(site.version.wwwroot, passwords, site.usage, manifest["courses"])
         for cell in selected:
@@ -168,7 +172,7 @@ def run(args: argparse.Namespace, env: Mapping[str, str]) -> Path:
                     record["problems"] = [str(error)]
             if status is not None:
                 results["runs"].append({**record, "status": status})
-                _write(out, results)
+                write_results(out, results, env)
                 continue
             [log] = inspect_eval(build_task(tier, tasks), model=f"moodle/{cell.id}",
                                  log_dir=str(out / "logs" / branch), display="plain", max_samples=1,
@@ -177,14 +181,39 @@ def run(args: argparse.Namespace, env: Mapping[str, str]) -> Path:
             tokens_used += sum(trial["tokens"] for trial in trials)
             results["runs"].append({**record, "status": "ran", "tasks": summarise(trials),
                                     "log": os.path.relpath(log.location, out)})
-            _write(out, results)
+            write_results(out, results, env)
     results["tokens_used"] = tokens_used
-    _write(out, results)
+    write_results(out, results, env)
     return out
 
 
-def _write(out: Path, results: dict) -> None:
-    (out / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
+def secret_values(env: Mapping[str, str]) -> list[str]:
+    """Every secret value the environment holds, longest first so no fragment survives a shorter match."""
+    names = set(FIXED_SECRETS) | {variable for cell in load_matrix()[0] for variable in cell.secrets.values()}
+    values = {env[name] for name in names if len(env.get(name) or "") >= 6}
+    for value in list(values):
+        embedded = re.search(r"://[^/@:]+:([^@/]+)@", value)
+        if embedded:
+            values.add(embedded.group(1))
+    return sorted(values, key=len, reverse=True)
+
+
+def _redacted(value: Any, secrets: list[str]) -> Any:
+    if isinstance(value, str):
+        for secret in secrets:
+            value = value.replace(secret, "[redacted]")
+        return value
+    if isinstance(value, list):
+        return [_redacted(item, secrets) for item in value]
+    if isinstance(value, dict):
+        return {key: _redacted(item, secrets) for key, item in value.items()}
+    return value
+
+
+def write_results(out: Path, results: dict, env: Mapping[str, str]) -> None:
+    """Write results.json with every secret value replaced: GitHub masks secrets in run logs, not in artifacts."""
+    text = json.dumps(_redacted(results, secret_values(env)), indent=2)
+    (out / "results.json").write_text(text, encoding="utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:

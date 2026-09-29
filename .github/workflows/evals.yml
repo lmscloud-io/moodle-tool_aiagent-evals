@@ -34,6 +34,7 @@ env:
 
 jobs:
   plan:
+    if: github.repository == 'lmscloud-io/moodle-tool_aiagent-evals'
     runs-on: ubuntu-24.04
     outputs:
       branches: ${{ steps.branches.outputs.branches }}
@@ -52,6 +53,7 @@ jobs:
 
   evaluate:
     needs: plan
+    if: github.repository == 'lmscloud-io/moodle-tool_aiagent-evals'
     runs-on: ubuntu-24.04
     timeout-minutes: 300
     strategy:
@@ -89,7 +91,7 @@ jobs:
 
   publish:
     needs: evaluate
-    if: inputs.publish
+    if: github.repository == 'lmscloud-io/moodle-tool_aiagent-evals' && inputs.publish
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
